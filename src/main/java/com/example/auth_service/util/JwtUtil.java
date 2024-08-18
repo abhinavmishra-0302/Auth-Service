@@ -55,5 +55,14 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public Boolean validateToken(String token){
+        return !isTokenExpired(token);
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parser().setSigningKey(secret_key).parseClaimsJws(token).getBody();
+        return claims.getSubject();
+    }
+
 
 }

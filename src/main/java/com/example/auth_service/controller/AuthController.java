@@ -1,22 +1,22 @@
 package com.example.auth_service.controller;
 
+import com.example.auth_service.models.JwtResponse;
 import com.example.auth_service.models.UserInfo;
 import com.example.auth_service.services.TokenBlackListService;
 import com.example.auth_service.services.UserService;
 import com.example.auth_service.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
-public class    AuthController {
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -34,6 +34,17 @@ public class    AuthController {
     public String registerUser(@RequestBody UserInfo userInfo){
         userService.registerUser(userInfo);
         return "User registered";
+    }
+
+    @GetMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestParam String token){
+        if (jwtUtil.validateToken(token)) {
+            System.out.println(jwtUtil.getUsernameFromToken(token)) ;
+            String username = jwtUtil.getUsernameFromToken(token);
+            return ResponseEntity.ok(new JwtResponse("Token is valid", username));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
     }
 
     @PostMapping("/login")

@@ -21,11 +21,6 @@ public class SecurityConfig {
 
     @Autowired JwtRequestFilter jwtRequestFilter;
 
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new UserDetailsServicesImpl();
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,7 +37,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/v1/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
