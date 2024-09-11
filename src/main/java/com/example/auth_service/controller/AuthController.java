@@ -1,8 +1,10 @@
 package com.example.auth_service.controller;
 
+import com.example.auth_service.dto.UserDetailsResponse;
 import com.example.auth_service.models.JwtResponse;
 import com.example.auth_service.models.UserInfo;
 import com.example.auth_service.services.TokenBlackListService;
+import com.example.auth_service.services.UserDetailsServicesImpl;
 import com.example.auth_service.services.UserService;
 import com.example.auth_service.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
+    private UserDetailsServicesImpl userDetailsServices;
+
+    @Autowired
     private TokenBlackListService tokenBlackListService;
 
     @PostMapping("/register")
@@ -39,12 +44,20 @@ public class AuthController {
     @GetMapping("/validate-token")
     public ResponseEntity<?> validateToken(@RequestParam String token){
         if (jwtUtil.validateToken(token)) {
-            System.out.println(jwtUtil.getUsernameFromToken(token)) ;
+            System.out.println("Token is valid");
             String username = jwtUtil.getUsernameFromToken(token);
             return ResponseEntity.ok(new JwtResponse("Token is valid", username));
         } else {
+            System.out.println("Invalid token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
+    }
+
+    @GetMapping("/get-user")
+    public ResponseEntity<UserDetailsResponse> getUserDetails(@RequestParam String username) {
+        UserDetails userDetails = userDetailsServices.loadUserByUsername(username);
+        UserDetailsResponse response = new UserDetailsResponse(userDetails.getUsername(), userDetails.getPassword());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
